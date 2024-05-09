@@ -30,12 +30,32 @@ newColumnNames = ['Category Number', 'Unnamed: 1', ' Land Type 1', 'Land Type 2'
                   'Net Value']
 df.columns = newColumnNames #assign new names to data frame
 
-#need to create additional columns for all exceptions that we track and split the Ex into appropreate column 
 
+#splitting Ex column into indivuial exemption columns
 
+#search for all values in Ex column that contain str site improvements
+sI = df[df['Ex'].str.contains('site improvements', case=False, na=False)]
+# create new column for site improvment values
+df.loc[sI.index,'Site Improvements'] = sI['Ex']
+
+#Increment Excemption
+iE = df[df['Ex'].str.contains('increment exemption', case=False, na=False)]
+df.loc[iE.index,'Increment Exemption'] = iE['Ex']
+#Remediated land
+rL = df[df['Ex'].str.contains('remediated land', case=False, na=False)]
+df.loc[rL.index,'Remediated Land'] = rL['Ex'] 
+#Pollution
+pl = df[df['Ex'].str.contains('pollution', case=False, na=False)]
+df.loc[pl.index,'Pollution'] = pl['Ex'] 
+#New capital Investments
+nC = df[df['Ex'].str.contains('new capital investments', case=False, na=False)]
+df.loc[nC.index,'New Capital Investments'] = nC['Ex'] 
+#Casualty
+ca = df[df['Ex'].str.contains('casualty', case=False, na=False)]
+df.loc[ca.index,'Casualty'] = ca['Ex'] 
 
 #print
 print(df.iloc[:10, :10])
 
 #create a csv with results from changes
-#df.to_excel(r"C:\Users\rescobedo\Documents\test\Ada County (003)TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
+df.to_excel(r"C:\Users\rescobedo\Documents\test\Ada County (003)TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
