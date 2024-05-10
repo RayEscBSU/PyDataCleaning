@@ -63,6 +63,6 @@ will leave these symbols in for ease of reading
 # # replace . 
 # df['dist_nam'] = df['dist_nam'].str.replace(r'.', '')
 
-#print(df.head())
+print(df.head())
 #create a csv with results from changes
 df.to_excel(r"L:\RayE\2024_County_Reports\PM006-Final_TaxPolicy_Cleaned.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
