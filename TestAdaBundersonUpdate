@@ -1,0 +1,43 @@
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import pandas as pd
+
+class YourTableName(Base):
+    Ada_Bunderson24 = 'Ada_Bunderson_24'
+    Year = Column(Integer)
+    Roll = Column(String)
+    County_Number = Column(Integer)
+    County_Name = Column(String)
+    Region_Number = Column(Integer)
+    Category_Number = Column(Integer)
+    Acreage = Column(Float)
+    Market_Value = Column(Integer)
+    Homeowner_s_Exemption = Column(Integer)
+    Increment = Column(Integer)
+    Personal_Property_Exemption = Column(Integer)
+    Hardship = Column(Integer)
+    Pollution = Column(Integer)
+    New_Capital_Investment = Column(Integer)
+    Business_Investment = Column(Integer)
+    Site_Improvement = Column(Integer)
+    Casualty_Loss = Column(Integer)
+    QIE = Column(Integer)
+    Net_Value = Column(Integer)
+    Residential_Urban = Column(Integer)
+    Residential_Rural = Column(Integer)
+    Commercial_Urban = Column(Integer)
+    Commercial_Rural = Column(Integer)
+    Ag = Column(Integer)
+    Timber = Column(Integer)
+    Mining = Column(Integer)
+    
+    
+    #Database connection details 
+    #String to connect to Tax database
+    db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+    engine = create_engine(db_connection_string) #connects to db
+    Session = sessionmaker(bind=engine) #haldes transactions
+    session = Session()
+    
+    df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\Ada\Ada Bunderson Report (Unformatted)From Ada 2023.xlsx")
