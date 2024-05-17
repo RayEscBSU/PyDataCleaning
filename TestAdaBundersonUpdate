@@ -1,84 +1,83 @@
-# 1. Install depenencies 
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
-# 2. Define existing sql table model
+# Define existing SQL table model
 Base = declarative_base()
-class CountyCategoryDetail(Base):
-    # table name in database
-    __tablename__ = 'CountyCategoryDetail'
-    # 
-    Year = Column(Integer)
-    Roll = Column(String)
-    County_Number = Column('County Number', Integer , default = 1)
-    County_Name = Column('County Name',String, default = 'Ada')
-    Region_Number = Column('Region Number', Integer, default = 3)
-    Category = Column('Category Number', Integer)
-    Acreage = Column(Float, default = 0)
-    Market_Value = Column('Market Value', Integer, default = 0)
-    Homeowner_s_Exemption = Column("Homeowner's Exemption", Integer, default = 0)
-    Increment = Column('Increment', Integer, default = 0)
-    Personal_Property_Exemption = Column('Personal Propery Exemption', Integer, default = 0)
-    Hardship = Column('Hardship', Integer, default = 0)
-    Pollution = Column('Pollution', Integer, default = 0)
-    New_Capital_Investment = Column('New Capital Investment (63-4502)', Integer, default = 0)
-    Business_Investment = Column('Business Investment (63-602NN)', Integer, default = 0)
-    Site_Improvement = Column('Site Improvement', Integer, default = 0)
-    Casualty_Loss = Column('Casualty Loss (63-602X)', Integer, default = 0)
-    QIE = Column('QIE', Integer, default = 0)
-    Net_Value = Column('Net Value', Integer, default = 0)
-    Residential_Urban = Column('Residential Urban', Integer, default = 0)
-    Residential_Rural = Column('Residential Rural', Integer, default = 0)
-    Commercial_Urban = Column('Commercial Urban', Integer, default = 0)
-    Commercial_Rural = Column('Commercial Rural', Integer, default = 0)
-    Ag = Column('Ag', Integer, default = 0)
-    Timber = Column('Timber', Integer, default = 0)
-    Mining = Column('Mining', Integer, default = 0)
-    Id = Column (Integer, primary_key=True)
-    
-# 3. Create session and enging - Database connection details 
-#String to connect to Tax database
-db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/Budget_Levy_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
-engine = create_engine(db_connection_string) #connects to db
-Session = sessionmaker(bind=engine) #haldes transactions
-session = Session() #saving current session
 
-# 4. reading excel file
+class CountyCategoryDetail(Base):
+    __tablename__ = 'CountyCategoryDetail'
+    
+    Year = Column(Integer, default=24)
+    Roll = Column(String, default='TEST')
+    County_Number = Column(Integer, name='County Number', default=1)
+    County_Name = Column(String, name='County Name', default='TEST')
+    Region_Number = Column(Integer, name='Region Number', default=3)
+    Category = Column(Integer, name='Category Number')
+    Acreage = Column(Float, default=0)
+    Market_Value = Column(Integer, name='Market Value', default=0)
+    Homeowner_s_Exemption = Column(Integer, name="Homeowner's Exemption", default=0)
+    Increment = Column(Integer, name='Increment', default=0)
+    Personal_Property_Exemption = Column(Integer, name='Personal Property Exemption', default=0)
+    Hardship = Column(Integer, name='Hardship', default=0)
+    Pollution = Column(Integer, name='Pollution', default=0)
+    New_Capital_Investment = Column(Integer, name='New Capital Investment (63-4502)', default=0)
+    Business_Investment = Column(Integer, name='Business Investment (63-602NN)', default=0)
+    Site_Improvement = Column(Integer, name='Site Improvement', default=0)
+    Casualty_Loss = Column(Integer, name='Casualty Loss (63-602X)', default=0)
+    QIE = Column(Integer, name='QIE', default=0)
+    Net_Value = Column(Integer, name='Net Value', default=0)
+    Residential_Urban = Column(Integer, name='Residential Urban', default=0)
+    Residential_Rural = Column(Integer, name='Residential Rural', default=0)
+    Commercial_Urban = Column(Integer, name='Commercial Urban', default=0)
+    Commercial_Rural = Column(Integer, name='Commercial Rural', default=0)
+    Ag = Column(Integer, name='Ag', default=0)
+    Timber = Column(Integer, name='Timber', default=0)
+    Mining = Column(Integer, name='Mining', default=0)
+    Id = Column(Integer, primary_key=True)
+
+# Create session and engine - Database connection details
+db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/Budget_Levy_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+engine = create_engine(db_connection_string)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Read Excel file
 new_data_df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\Ada\Ada Bunderson Report (Unformatted)From Ada 2023.xlsx")
 
-# Define the column mapping
+# Define the column mapping: DataFrame column -> SQLAlchemy attribute
 column_mapping = {
-    'Year': 'Year',
-    'Roll': 'Roll',
-    'County Number': 'County',
-    'Category Number': 'CATEGORY',
+    'YEAR': 'Year',
+    'ROLL': 'Roll',
+    'COUNTY': 'County_Number',  # Mapping DataFrame 'COUNTY' to SQLAlchemy 'County_Number'
+    'CATEGORY': 'Category',
     'Acreage': 'Acreage',
-    'Market Value': 'TOTAL_Value'
+    'TOTAL_VALUE': 'Market_Value'
 }
 
-# Filter out columns that don't exist in the DataFrame
-filtered_column_mapping = {k: v for k, v in column_mapping.items() if k in new_data_df.columns}
-
-# Rename DataFrame columns
-new_data_df.rename(columns=filtered_column_mapping, inplace=True)
+# Rename DataFrame columns based on mapping
+new_data_df.rename(columns=column_mapping, inplace=True)
 
 # Convert DataFrame rows to SQLAlchemy objects
 records = new_data_df.to_dict(orient='records')
 county_details = []
 for record in records:
     # Create a dictionary with default values for missing columns
-    record_with_defaults = {column.name: getattr(CountyCategoryDetail, column.name).default.arg for column in CountyCategoryDetail.__table__.columns}
+    record_with_defaults = {
+        column.key: (getattr(CountyCategoryDetail.__table__.c, column.key).default.arg if getattr(CountyCategoryDetail.__table__.c, column.key).default is not None else None)
+        for column in CountyCategoryDetail.__table__.columns
+    }
     # Update the dictionary with actual values from the record
     record_with_defaults.update(record)
+    # Filter out None values
+    record_with_defaults = {k: v for k, v in record_with_defaults.items() if v is not None}
     county_details.append(CountyCategoryDetail(**record_with_defaults))
 
-
-#add new records to the database
+# Add new records to the database
 for detail in county_details:
     existing_record = session.query(CountyCategoryDetail).filter_by(Id=detail.Id).first()
-    if not existing_record: 
+    if not existing_record:
         session.add(detail)
 
 session.commit()
