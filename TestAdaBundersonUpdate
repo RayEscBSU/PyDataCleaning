@@ -1,12 +1,15 @@
+# 1. Install depenencies 
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
+# 2. Define existing sql table model
 Base = declarative_base()
-
 class CountyCategoryDetail(Base):
+    # table name in database
     __tablename__ = 'CountyCategoryDetail'
+    # 
     Year = Column(Integer)
     Roll = Column(String)
     County_Number = Column('County Number', Integer , default = 1)
@@ -33,19 +36,49 @@ class CountyCategoryDetail(Base):
     Ag = Column('Ag', Integer, default = 0)
     Timber = Column('Timber', Integer, default = 0)
     Mining = Column('Mining', Integer, default = 0)
-    Id = Column (Integer, primary_key = True)
+    Id = Column (Integer, primary_key=True)
     
 # 3. Create session and enging - Database connection details 
 #String to connect to Tax database
-db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/Budget_Levy_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
 engine = create_engine(db_connection_string) #connects to db
 Session = sessionmaker(bind=engine) #haldes transactions
 session = Session() #saving current session
 
 # 4. reading excel file
-df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\Ada\Ada Bunderson Report (Unformatted)From Ada 2023.xlsx")
+new_data_df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\Ada\Ada Bunderson Report (Unformatted)From Ada 2023.xlsx")
 
-# 5. query existing data 
-existing_data = session.query(CountyCategoryDetail).all()
-for row in existing_data: 
-    print(row)
+# Define the column mapping
+column_mapping = {
+    'Year': 'Year',
+    'Roll': 'Roll',
+    'County Number': 'County',
+    'Category Number': 'CATEGORY',
+    'Acreage': 'Acreage',
+    'Market Value': 'TOTAL_Value'
+}
+
+# Filter out columns that don't exist in the DataFrame
+filtered_column_mapping = {k: v for k, v in column_mapping.items() if k in new_data_df.columns}
+
+# Rename DataFrame columns
+new_data_df.rename(columns=filtered_column_mapping, inplace=True)
+
+# Convert DataFrame rows to SQLAlchemy objects
+records = new_data_df.to_dict(orient='records')
+county_details = []
+for record in records:
+    # Create a dictionary with default values for missing columns
+    record_with_defaults = {column.name: getattr(CountyCategoryDetail, column.name).default.arg for column in CountyCategoryDetail.__table__.columns}
+    # Update the dictionary with actual values from the record
+    record_with_defaults.update(record)
+    county_details.append(CountyCategoryDetail(**record_with_defaults))
+
+
+#add new records to the database
+for detail in county_details:
+    existing_record = session.query(CountyCategoryDetail).filter_by(Id=detail.Id).first()
+    if not existing_record: 
+        session.add(detail)
+
+session.commit()
