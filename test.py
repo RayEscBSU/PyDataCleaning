@@ -8,11 +8,11 @@ Base = declarative_base()
 
 class CountyCategoryDetail(Base):
     __tablename__ = 'CountyCategoryDetail'
-    
+     
     year = Column('Year', Integer, default=2024)
     roll = Column('Roll', String, default='TEST2')
     county_number = Column('County Number', Integer, default=1)
-    county_name = Column('County Name', String, default='TEST2')
+    county_name = Column('County Name', String, default='Dornfest')
     region_number = Column('Region Number', Integer, default=3)
     category = Column(' Category Number', Integer, default=101)
     acreage = Column(Float, default=0.0)
@@ -65,15 +65,16 @@ column_mapping = {
 # Rename DataFrame columns based on mapping and keep only those columns
 new_data_df = new_data_df.rename(columns=column_mapping).loc[:, column_mapping.values()]
 
-
 """
     Columns that exist in SQl database but not found in column mapping
     will be updated with the defualt value set above   
-"""
-# Set default values for missing columns in DataFrame
+ """
+# get columns and default values from sqlalchemy table
 for column, default_value in CountyCategoryDetail.__table__.columns.items():
+    # check if columns is mapped and but not found in csv 
     if column in column_mapping.values() and column not in new_data_df:
-        new_data_df[column] = default_value.default.arg if default_value.default is not None else None
+        # set default value it one is assigned, if no default is assigned set to none
+        new_data_df[column] = default_value.default.arg if default_value.default is not None else None 
 
 # Convert DataFrame rows to SQLAlchemy objects
 county_details = [CountyCategoryDetail(**record) for record in new_data_df.to_dict(orient='records')]
