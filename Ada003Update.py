@@ -3,6 +3,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
+df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) - Copy.xlsx")
+
+# Trim leading and trailing whitespaces from all string values
+df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+# Trim leading and trailing whitespaces from the headers
+df.columns = df.columns.str.strip()
+
 # Define existing SQL table model
 Base = declarative_base()
 
@@ -37,49 +44,11 @@ class CountyCategoryDetail(Base):
     mining = Column('Mining', Integer, default=0)
     id = Column(Integer, primary_key=True)
 
-# Create session and engine - Database connection details
-db_connection_string = 'mssql+pyodbc://@TAXDB-PT001:1433/Budget_Levey_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
-engine = create_engine(db_connection_string)
-Session = sessionmaker(bind=engine)
-session = Session()
 
-# Read Excel file
-new_data_df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\Ada\Ada Bunderson Report (Unformatted)From Ada 2023.xlsx")
 
-# Strip whitespace from DataFrame column names
-new_data_df.columns = new_data_df.columns.str.strip()
 
-"""
-    The column mapping will specify which columns from the CSV I want to read
-    all others will be ignored.  
-"""
-# Define the column mapping: DataFrame column -> SQLAlchemy attribute
-column_mapping = {
-    'YEAR': 'year',
-    'ROLL': 'roll',
-    'COUNTY': 'county_number',
-    'CATEGORY': 'category',
-    'TOTAL_VALUE': 'market_value'
-}
+#print
+print(df.iloc[:10, :10])
 
-# Rename DataFrame columns based on mapping and keep only those columns
-new_data_df = new_data_df.rename(columns=column_mapping).loc[:, column_mapping.values()]
-
-"""
-    Columns that exist in SQl database but not found in column mapping
-    will be updated with the defualt value set above   
- """
-# get columns and default values from sqlalchemy table
-for column, default_value in CountyCategoryDetail.__table__.columns.items():
-    # check if columns is mapped and but not found in csv 
-    if column in column_mapping.values() and column not in new_data_df:
-        # set default value it one is assigned, if no default is assigned set to none
-        new_data_df[column] = default_value.default.arg if default_value.default is not None else None 
-
-# Convert DataFrame rows to SQLAlchemy objects
-county_details = [CountyCategoryDetail(**record) for record in new_data_df.to_dict(orient='records')]
-
-# Add new records to the database
-session.add_all(county_details)
-session.commit()
-session.close()
+#create a csv with results from changes
+df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
