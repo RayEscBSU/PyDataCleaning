@@ -49,6 +49,7 @@ new_data_df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\
 # Strip whitespace from DataFrame column names
 new_data_df.columns = new_data_df.columns.str.strip()
 
+
 """
     The column mapping will specify which columns from the CSV I want to read
     all others will be ignored.  

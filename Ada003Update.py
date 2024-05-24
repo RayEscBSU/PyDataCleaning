@@ -10,9 +10,9 @@ class CountyCategoryDetail(Base):
     __tablename__ = 'CountyCategoryDetail'
      
     year = Column('Year', Integer, default=2024)
-    roll = Column('Roll', String, default='TEST2')
+    roll = Column('Roll', String, default='Main')
     county_number = Column('County Number', Integer, default=1)
-    county_name = Column('County Name', String, default='test2')
+    county_name = Column('County Name', String, default='Ada')
     region_number = Column('Region Number', Integer, default=3)
     category = Column(' Category Number', Integer, default=101)
     acreage = Column(Float, default=0.0)
@@ -50,6 +50,9 @@ df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_Coun
 df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 # Trim leading and trailing whitespaces from the headers
 df.columns = df.columns.str.strip()
+#replace Nan / NaT withe empty string
+df = df.fillna(0)
+
 
 """
     The column mapping will specify which columns from the CSV I want to read
@@ -65,9 +68,9 @@ column_mapping = {
     'Hardship' : 'hardship',
     'QIE' : 'qie',
     'Pollution' : 'pollution',
-    'New Capital Investment' : 'new_cap_investment', 
-    'Casualty' : 'casualty_loss',
-    'Site Improvments' : 'site_improvement',
+    'New Capital Investment' : 'new_capital_investment', 
+    'Casualty' : 'casualty_loss', 
+    'Site Improvements' : 'site_improvement',
     'PP Exemption' : 'personal_property_exemption',
     'Taxable Value' : 'net_value'
 }
@@ -97,7 +100,7 @@ session.close()
 
 
 #print
-#print(df.iloc[:10, :10])
+print(df.iloc[:10, :10])
 
 #create a csv with results from changes
-#df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
+df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
