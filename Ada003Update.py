@@ -97,10 +97,8 @@ session.add_all(county_details)
 session.commit()
 session.close()
 
-
-
 #print
-print(df.iloc[:10, :10])
+#print(df.iloc[:10, :10])
 
 #create a csv with results from changes
-df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
+#df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2024_County_Reports\Ada County (003) TestOutput.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
