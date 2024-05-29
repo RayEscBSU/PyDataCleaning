@@ -56,6 +56,9 @@ df['County'] = df['County'].str.extract('- (.+)')[0]
 # Remove leading zero from County Number
 df['County Number'] = df['County Number'].apply(lambda x: str(x).lstrip('0') if pd.notnull(x) else x)
 
+# Convert DistrictType and DistrictNumber to integers
+df['DistrictType'] = df['DistrictType'].apply(lambda x: int(x) if pd.notnull(x) else x)
+df['DistrictNumber'] = df['DistrictNumber'].apply(lambda x: int(x) if pd.notnull(x) else x)
 
 #fill empty cells in column with last value seen in column
 df[['County Number', 'County', 'DistrictType', 'DistrictNumber']] = df[['County Number', 'County', 'DistrictType', 'DistrictNumber']].fillna(method='ffill')
