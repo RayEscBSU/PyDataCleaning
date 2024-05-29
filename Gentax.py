@@ -24,7 +24,7 @@ df = df.drop(columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 4',
 #drop top tow rows
 df = df.iloc[16:] # delete top rows
 # Delete the last row
-df = df.iloc[:-6]
+df = df.iloc[:-7]
 
 "Align last for column values to match district name"
 df.reset_index(drop=True, inplace=True)
@@ -41,8 +41,9 @@ df = pd.concat([first_columns, last_four_columns], axis=1)
 
 
 #replace Nan / NaT withe empty string
-df.iloc[3:, -4:] = df.iloc[3:, -4:].fillna(0)
+df.iloc[:, -4:] = df.iloc[:, -4:].fillna(0)
 
 print(df.iloc[:10, :10])
 #create a csv with results from changes
-df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTax23Output.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
+#df.to_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.xlsx",sheet_name='Sheet1', index=False, header=True, engine='openpyxl')
+df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
