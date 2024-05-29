@@ -39,9 +39,21 @@ first_columns = first_columns.iloc[:len(last_four_columns), :]
 # Combine the first columns with the modified last four columns
 df = pd.concat([first_columns, last_four_columns], axis=1)
 
+# Add 2 rows to the first column
+df['County'] = pd.concat([pd.Series([None, None]), df['County'].reset_index(drop=True)], ignore_index=True)
 
+# Add 1 row to the second column
+df['DistrictType'] = pd.concat([pd.Series([None]), df['DistrictType'].reset_index(drop=True)], ignore_index=True)
+df = df.iloc[2:] # delete top rows
+
+# Delete any rows that contain only 0 or empty string
+df = df.dropna(how='all')
+
+#fill empty cells in column with last value seen in column
+df[['County', 'DistrictType', 'DistrictNumber']] = df[['County', 'DistrictType', 'DistrictNumber']].fillna(method='ffill')
 #replace Nan / NaT withe empty string
 df.iloc[:, -4:] = df.iloc[:, -4:].fillna(0)
+
 
 print(df.iloc[:10, :10])
 #create a csv with results from changes
