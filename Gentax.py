@@ -5,7 +5,7 @@ df = df.copy() #copy values only
 
 #print(df.columns)
 #Setting new column names
-newColumnNames = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'County', 'Unnamed: 4',
+newColumnNames = ['County Number', 'Unnamed: 1', 'Unnamed: 2', 'County', 'Unnamed: 4',
        'Unnamed: 5', 'Unnamed: 6', 'DistrictType', 'DistrictNumber', 'DistrictName',
        'RAA', 'Unnamed: 11', 'Unnamed: 12', 'Unnamed: 13',
        'Unnamed: 14', 'Unnamed: 15', 'TaxableValue', 'Unnamed: 17',
@@ -15,7 +15,7 @@ newColumnNames = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'County', 'Unnamed: 
 df.columns = newColumnNames #assign new names to data frame
 
 #drop unwanted columns
-df = df.drop(columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 4',
+df = df.drop(columns=[ 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 4',
        'Unnamed: 5', 'Unnamed: 6', 'Unnamed: 11', 'Unnamed: 12', 'Unnamed: 13',
        'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 17', 'Unnamed: 19', 'Unnamed: 20',
        'Unnamed: 22', 'Unnamed: 23', 'Unnamed: 25'])
@@ -49,8 +49,16 @@ df = df.iloc[2:] # delete top rows
 # Delete any rows that contain only 0 or empty string
 df = df.dropna(how='all')
 
+# Extract the digits and county names
+df['County Number'] = df['County'].str.extract('(\d+)').astype(float).astype('Int64')
+df['County'] = df['County'].str.extract('- (.+)')[0]
+
+# Remove leading zero from County Number
+df['County Number'] = df['County Number'].apply(lambda x: str(x).lstrip('0') if pd.notnull(x) else x)
+
+
 #fill empty cells in column with last value seen in column
-df[['County', 'DistrictType', 'DistrictNumber']] = df[['County', 'DistrictType', 'DistrictNumber']].fillna(method='ffill')
+df[['County Number', 'County', 'DistrictType', 'DistrictNumber']] = df[['County Number', 'County', 'DistrictType', 'DistrictNumber']].fillna(method='ffill')
 #replace Nan / NaT withe empty string
 df.iloc[:, -4:] = df.iloc[:, -4:].fillna(0)
 
