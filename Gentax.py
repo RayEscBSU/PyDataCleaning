@@ -71,25 +71,25 @@ df.iloc[:, -4:] = df.iloc[:, -4:].fillna(0)
 
 # ''' ****** Push to SQL Server ****** '''
 
-# engine = db.create_engine('mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
-# df.to_sql('MyGenTaxYR0045', engine,if_exists='replace')
+engine = db.create_engine('mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
+df.to_sql('MyGenTaxYR0045', engine,if_exists='replace')
 
-# # SQL database connection string
-# db_connection_string = 'mssql+pyodbc://TAXDB-PT001:1433/Budget_Levey_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
-# # Create SQLAlchemy engine
-# engine = create_engine(db_connection_string)
+# SQL database connection string
+db_connection_string = 'mssql+pyodbc://TAXDB-PT001:1433/Budget_Levey_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+# Create SQLAlchemy engine
+engine = create_engine(db_connection_string)
 
-# # Create a session
+# Create a session
 # Session = sessionmaker(bind=engine)
 # session = Session()
 
-# # Push the DataFrame to the SQL table
-# df.to_sql('GenTaxYR0045', con=engine, if_exists='replace', index=False)
+# Push the DataFrame to the SQL table
+df.to_sql('GenTaxYR0045', con=engine, if_exists='append', index=False)
 
-# print("Data pushed to SQL database successfully.")
+print("Data pushed to SQL database successfully.")
 
 # # Close the session
 # session.close()
 
 # Create a CSV with results from changes
-df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
+#df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
