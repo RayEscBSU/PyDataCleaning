@@ -8,6 +8,34 @@ df = pd.read_excel(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Exam
 
 df = df.copy()  # Copy values only
 
+'''find filing period and run date'''
+# Select the first 5 rows and columns
+# df_subset = df.iloc[:5, :5]
+
+# # Custom function to add cell locations
+# def add_cell_locations(dataframe):
+#     rows, cols = dataframe.shape
+#     for i in range(rows):
+#         for j in range(cols):
+#             cell_value = dataframe.iat[i, j]
+#             location = f"({i+1},{j+1})"
+#             print(f"Cell {location}: {cell_value}")
+
+# # Print the DataFrame with cell locations
+# add_cell_locations(df_subset)
+
+# Extract the values
+run_date_value = df.iloc[2, 4]
+filing_period_value = df.iloc[4, 4]
+
+# Concatenate using f-strings
+run_date = f"Run Date: {run_date_value}"
+filing_period = f"Filing Period: {filing_period_value}"
+
+# print(run_date)
+# print(filing_period)
+
+
 # Setting new column names
 newColumnNames = ['CountyNumber', 'Unnamed: 1', 'Unnamed: 2', 'County', 'Unnamed: 4',
                   'Unnamed: 5', 'Unnamed: 6', 'DistrictType', 'DistrictNumber', 'DistrictName',
@@ -71,20 +99,21 @@ df.iloc[:, -4:] = df.iloc[:, -4:].fillna(0)
 
 # ''' ****** Push to SQL Server ****** '''
 
-engine = db.create_engine('mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
-df.to_sql('MyGenTaxYR0045', engine,if_exists='replace')
+#engine = db.create_engine('mssql+pyodbc://@TAXDB-PT001:1433/TestDB?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
+#df.to_sql('MyGenTaxYR0045', engine,if_exists='replace')
 
 # SQL database connection string
-db_connection_string = 'mssql+pyodbc://TAXDB-PT001:1433/Budget_Levey_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+#db_connection_string = 'mssql+pyodbc://TAXDB-PT001:1433/Budget_Levey_Data?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
 # Create SQLAlchemy engine
-engine = create_engine(db_connection_string)
+#engine = create_engine(db_connection_string)
 
 # Create a session
 # Session = sessionmaker(bind=engine)
 # session = Session()
 
+#print(df)
 # Push the DataFrame to the SQL table
-df.to_sql('GenTaxYR0045', con=engine, if_exists='append', index=False)
+#df.to_sql('GenTaxYR0045', con=engine, if_exists='append', index=False)
 
 print("Data pushed to SQL database successfully.")
 
@@ -92,4 +121,18 @@ print("Data pushed to SQL database successfully.")
 # session.close()
 
 # Create a CSV with results from changes
-#df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
+
+""" 
+Add rundate and filing period as a new column at the end of df 
+"""
+# Create new row DataFrames with the specified values in the "HiBen" column
+new_row1 = pd.DataFrame({col: [None] for col in df.columns})
+new_row1.at[0, 'Hi Ben'] = run_date
+new_row2 = pd.DataFrame({col: [None] for col in df.columns})
+new_row2.at[0, 'Hi Ben'] = filing_period
+# Concatenate the new row DataFrames with the existing DataFrame
+df = pd.concat([new_row1, new_row2, df], ignore_index=True)
+
+
+df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
+print(df)
