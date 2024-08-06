@@ -134,5 +134,9 @@ new_row2.at[0, 'Hi Ben'] = filing_period
 df = pd.concat([new_row1, new_row2, df], ignore_index=True)
 
 
-df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
+# Save the modified DataFrame to an Excel file with a specified sheet name
+output_file_path = r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.xlsx"
+df.to_excel(output_file_path, index=False, header=True, sheet_name='Sheet1')
+# Create a CSV with results from changes
+#df.to_csv(r"C:\Users\rescobedo\OneDrive - State of Idaho\RayE\2023 Example Reports\GenTaxYR045Modified.csv", index=False, header=True)
 print(df)
